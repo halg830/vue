@@ -80,10 +80,11 @@ else if mayor a 50 unidades azul
 else negro
 -->
 
-<input type="text">
-<input type="text">
-<input type="text">
-<input type="text">
+<label for="">Código: <input type="text"></label>
+<label for="">Producto: <input type="text"></label>
+<label for="">Costo:<input type="text"></label>
+<label for="">Cantidad: <input type="text"></label>
+<label for="">Precio: <input type="text"></label>
 
 <table>
   <tr>
