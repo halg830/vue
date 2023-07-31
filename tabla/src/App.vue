@@ -5,9 +5,11 @@ let producto = ref({})
 
 let data = ref([])
 
-const agregar = () => {
-  data.value.push({...producto.value})
+const agregar = () => {  
+  data.value.push({ ...producto.value })
 }
+
+
 
 
 </script>
@@ -34,7 +36,7 @@ const agregar = () => {
         <td>Codigo</td>
         <td>Nombre</td>
         <td>Precio</td>
-        <td>Cantidad</td>
+        <td >Cantidad</td>
         <td>Cargo</td>
       </tr>
 
@@ -42,7 +44,7 @@ const agregar = () => {
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.costo }}</td>
-        <td>{{ item.cantidad }}</td>
+        <td :style="item.cantidad<10 ? 'color: red': item.cantidad>50 ? 'color: blue;' : 'color : black;'">{{ item.cantidad }}</td>
         <td>{{ item.precio }}</td>
       </tr>
 
