@@ -1,15 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 let producto = ref({})
 
 let data = ref([])
 
-const agregar = () => {  
+const agregar = () => {
   data.value.push({ ...producto.value })
 }
 
-
+const getColor = (item) => {
+  if (item < 10) return { color: "red" }
+  else if (item > 50) return { color: "blue" }
+  else return { color: "black" }
+}
 
 
 </script>
@@ -44,7 +48,7 @@ const agregar = () => {
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.costo }}</td>
-        <td :style="item.cantidad<10 ? 'color: red': item.cantidad>50 ? 'color: blue;' : 'color : black;'">{{ item.cantidad }}</td>
+        <td :style="getColor(item.cantidad)">{{ item.cantidad }}</td>
         <td>{{ item.precio }}</td>
       </tr>
 
