@@ -3,6 +3,8 @@ import { ref } from 'vue'
 
 let estado = 0
 
+let itemActual = {}
+
 let producto = ref({
   codigo: "",
   nombre: "",
@@ -13,35 +15,99 @@ let producto = ref({
 
 let data = ref([{
   codigo: "sdfsdfsd",
-    nombre: "dsfsdfsd",
-    costo: 23324,
-    cantidad: 2,
-    precio:324
+  nombre: "dsfsdfsd",
+  costo: 23324,
+  cantidad: 2,
+  precio: 324
 }])
 
-const validar = () =>{
+const mostrarError = ()=>{
+
+}
+
+let error=ref({
+  codigo: "",
+  nombre: "",
+  costo: "",
+  cantidad: "",
+  precio: ""
+})
+
+
+
+const validar = () => {
+/* validaciones
+numeros negativos
+precio mayor al costo
+no números 0 
+codigo no repetido
+*/
+
   const errores = []
 
-  Object.values(producto.value).forEach((e) => {
-    if (e == "" || e == 0) errores.push({ id: "cuadros", error: "vacios" })
+  Object.entries(producto.value).forEach((e) => {
+    if (e[1] === "") errores.push({ id: e[0], mensaje: "El texto no puede estar vacio" })
+    else if(e[1] <= 0) errores.push({ id: e[0], mensaje: "El valor no puede ser menor o igual a 0" })
+    
   })
-  if (errores.length > 0) return false
+
+  const buscarError = errores.find(e=> e.id=="precio")
+
+    if(!buscarError){
+      if(producto.value.precio<producto.value.costo){
+        errores.push({id: "precio", mensaje: "El precio no puede ser menor al "})
+      }
+    }
+
+  if(errores.length>0){
+    errores.forEach((e)=>{
+      error.value[e.id] = e.mensaje
+      setTimeout(() => {
+        error.value[e.id] = ""
+      }, 3000);
+    })
+    return false
+  }
+
   else return true
 
 }
 
-const agregar = (codigo) => {
-  if(validar()){
-    if(estado==0){
+const agregar = () => {
+  if (validar()) {
+    if (estado == 0) {
       data.value.push({ ...producto.value })
-      producto.value = ref({})
     }
     else {
-      
+      data.value.forEach((e, i) => {
+        if (e.codigo == itemActual.codigo) {
+          e.codigo = producto.value.codigo
+          e.nombre = producto.value.nombre
+          e.cantidad = producto.value.cantidad
+          e.costo = producto.value.costo
+          e.precio = producto.value.precio
+        }
+      })
     }
-
+    cerrarModal()
   }
 
+}
+
+const cerrarModal = () => {
+            let modal = document.getElementById("exampleModal")
+            let bsModal = bootstrap.Modal.getInstance(modal)
+            bsModal.hide()
+        }
+
+const limpiar = () => {
+  producto.value = {
+    codigo: "",
+    nombre: "",
+    costo: 0,
+    cantidad: 0,
+    precio: 0
+  }
 }
 
 const getColor = (item) => {
@@ -59,14 +125,32 @@ const editar = (item) => {
     cantidad: item.cantidad,
     precio: item.precio
   }
+
+  itemActual = item
 }
 
-const crear = ()=>{
+const crear = () => {
   estado = 0
+  limpiar()
 }
 
 const eliminar = (i) => {
   data.value.splice(i, 1)
+}
+
+const totales = {
+  precio: 0,
+  costo: 0
+}
+
+const calcularTotal = (a, b, cual) => {
+  let r = a * b
+  totales[cual] = r
+  return r
+}
+
+const calcularGanancia = () => {
+  return totales.precio - totales.costo
 }
 
 </script>
@@ -96,16 +180,20 @@ const eliminar = (i) => {
           </div>
           <div class="modal-body">
             <p>Código: </p><input type="text" v-model="producto.codigo">
+            <p class="error">{{ error.codigo }}</p>
             <p>Producto: </p><input type="text" v-model="producto.nombre">
+            <p class="error">{{ error.nombre}}</p>
             <p>Costo: </p><input type="number" v-model="producto.costo">
+            <p class="error">{{ error.costo}}</p>
             <p>Cantidad: </p><input type="number" v-model="producto.cantidad">
+            <p class="error">{{ error.cantidad}}</p>
             <p>Precio: </p><input type="number" v-model="producto.precio">
+            <p class="error">{{ error.precio}}</p>
             <br> <br>
           </div>
           <div class="modal-footer">
-            <p id="exito">Agregado con exito</p>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button @click="agregar(producto.codigo)" type="button" class="btn btn-primary" data-bs-dismiss="modal">Guardar cambios</button>
+            <button @click="agregar(producto.codigo)" type="button" class="btn btn-primary">Guardar</button>
           </div>
         </div>
       </div>
@@ -129,6 +217,9 @@ const eliminar = (i) => {
         <td>Costo</td>
         <td>Cantidad</td>
         <td>Precio</td>
+        <td>Costo total</td>
+        <td>Precio total</td>
+        <td>Ganancias</td>
         <td>Opciones</td>
       </tr>
 
@@ -138,6 +229,9 @@ const eliminar = (i) => {
         <td>{{ item.costo }}</td>
         <td :style="getColor(item.cantidad)">{{ item.cantidad }}</td>
         <td>{{ item.precio }}</td>
+        <td>{{ calcularTotal(item.costo, item.cantidad, "costo") }}</td>
+        <td>{{ calcularTotal(item.precio, item.cantidad, "precio") }}</td>
+        <td>{{ calcularGanancia() }}</td>
         <td>
           <button @click="editar(item)" data-bs-toggle="modal" data-bs-target="#exampleModal">✍️</button>
           <button @click="eliminar(index)">❌</button>
@@ -162,5 +256,9 @@ table {
 
 td {
   border: 1px solid black;
+}
+
+.error{
+  color: red
 }
 </style>
